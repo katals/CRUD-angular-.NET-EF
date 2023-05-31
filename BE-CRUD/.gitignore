@@ -1,0 +1,18 @@
+# Carpeta de salida de compilación de .NET
+/bin
+/obj
+
+# Archivos generados por Visual Studio
+*.suo
+*.user
+*.dll
+*.exe
+*.pdb
+*.userprefs
+*.bak
+*.cache
+*.log
+
+# Archivos de configuración de NuGet
+/nuget.config
+/packages/*.lock
