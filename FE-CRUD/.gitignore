@@ -1,0 +1,24 @@
+# Carpeta de dependencias
+/node_modules
+
+# Archivos generados por el CLI de Angular
+/dist
+/coverage
+
+# Archivos de configuración de pruebas
+/karma.conf.js
+/protractor.conf.js
+
+# Archivos de configuración de TypeScript
+/tsconfig.json
+/tsconfig.app.json
+/tsconfig.spec.json
+
+# Archivos de configuración de Prettier
+.prettierignore
+.prettierrc
+
+# Archivos de configuración de ESLint
+.eslintignore
+.eslintrc.json
+.angular/cache/
