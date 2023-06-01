@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Pet } from '../../interfaces/pet';
 import { PetService } from 'src/app/services';
 import { ActivatedRoute } from '@angular/router';
+import { MessageService } from '../../services/message.service';
 
 @Component({
   selector: 'app-add-edit-pet',
@@ -18,7 +19,8 @@ export class AddEditPetComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private service: PetService,
-    private aRoute: ActivatedRoute
+    private aRoute: ActivatedRoute,
+    private message: MessageService
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -42,10 +44,29 @@ export class AddEditPetComponent implements OnInit {
   getPet(id: number) {
     this.service.getPet(id).subscribe((data) => {
       console.log(data);
+      this.form.setValue({
+        name: data.name,
+        race: data.race,
+        age: data.age,
+        color: data.color,
+        weight: data.weight,
+      });
     });
   }
 
-  addPet() {
+  editPet(id: number, pet: Pet) {
+    this.service.updatePet(id, pet).subscribe((data) => {
+      this.message.successMessage('edited');
+    });
+  }
+
+  addPet(pet: Pet) {
+    this.service.postPet(pet).subscribe(() => {
+      this.message.successMessage('created');
+    });
+  }
+
+  addEditPet() {
     const pet: Pet = {
       age: this.form.value.age,
       weight: this.form.value.weight,
@@ -53,7 +74,11 @@ export class AddEditPetComponent implements OnInit {
       race: this.form.value.race,
       color: this.form.value.color,
     };
-
-    this.service.postPet(pet).subscribe((data) => {});
+    if (this.id != 0 || null || undefined) {
+      pet.id = this.id;
+      this.editPet(this.id, pet);
+    } else {
+      this.addPet(pet);
+    }
   }
 }
