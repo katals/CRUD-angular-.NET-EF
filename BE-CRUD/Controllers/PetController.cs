@@ -5,8 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using BE_CRUD.Services;
 using BE_CRUD.Models;
+using BE_CRUD.Models.Profiles;
 
 namespace BE_CRUD.Controllers;
 
@@ -31,20 +33,21 @@ public class PetController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> Get()
     {
-        return Ok(petService.GetAll());
+        var pets = await petService.GetAll();
+        return Ok(pets);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] Pet pet)
+    public async Task<IActionResult> Post([FromBody] PetDTO petDto)
     {
-        await petService.Post(pet);
-        return Ok();
+        await petService.Post(petDto);
+        return CreatedAtAction(nameof(GetOne), new { id = petDto.Id }, petDto);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Pet pet)
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] PetDTO pet)
     {
         await petService.Update(id, pet);
         return Ok();

@@ -3,51 +3,61 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
+using AutoMapper;
 
 using BE_CRUD.Models;
 using Microsoft.EntityFrameworkCore;
+using BE_CRUD.Models.Profiles;
 
 namespace BE_CRUD.Services;
 
 public class PetService : IPetsService
 {
     protected readonly DatabaseQueryBuilder _context;
+    protected readonly IMapper _mapper;
 
-    public PetService(DatabaseQueryBuilder context)
+    public PetService(DatabaseQueryBuilder context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<Pet> GetOne(int id)
+    public async Task<PetDTO> GetOne(int id)
     {
         var actualPet = await _context.Pets.FirstOrDefaultAsync(x => x.Id == id);
-
-        return actualPet;
+        var petDto = _mapper.Map<PetDTO>(actualPet);
+        return petDto;
     }
 
-    public IEnumerable<Pet> GetAll()
+    public async Task<IEnumerable<PetDTO>> GetAll()
     {
-        return _context.Pets;
+        var pets = await _context.Pets.ToListAsync();
+        var listPetsDto = _mapper.Map<IEnumerable<PetDTO>>(pets);
+        return listPetsDto;
     }
 
-    public async Task Post(Pet pet)
+    public async Task Post(PetDTO petDto)
     {
+        var pet = _mapper.Map<Pet>(petDto);
         pet.CreationDate = DateTime.Now;
         _context.Add(pet);
         await _context.SaveChangesAsync();
+        var petItemDto = _mapper.Map<PetDTO>(pet);
     }
 
-    public async Task Update(int id, Pet pet)
+    public async Task Update(int id, PetDTO petDto)
     {
-        var actualPet = await _context.Pets.FirstOrDefaultAsync(x => x.Id == id);
+        var pet = _mapper.Map<Pet>(petDto);
 
-        if (actualPet != null)
+        var petItem = await _context.Pets.FindAsync(id);
+
+        if (petItem != null)
         {
-            actualPet.Name = pet.Name;
-            actualPet.Age = pet.Age;
-            actualPet.Race = pet.Race;
-            actualPet.Weight = pet.Weight;
-            actualPet.Color = pet.Color;
+            petItem.Name = pet.Name;
+            petItem.Age = pet.Age;
+            petItem.Race = pet.Race;
+            petItem.Weight = pet.Weight;
+            petItem.Color = pet.Color;
             await _context.SaveChangesAsync();
         }
     }
@@ -68,9 +78,9 @@ public class PetService : IPetsService
 
 public interface IPetsService
 {
-    Task<Pet> GetOne(int id);
-    IEnumerable<Pet> GetAll();
-    Task Post(Pet pet);
-    Task Update(int id, Pet pet);
+    Task<PetDTO> GetOne(int id);
+    Task<IEnumerable<PetDTO>> GetAll();
+    Task Post(PetDTO petDto);
+    Task Update(int id, PetDTO petDto);
     Task<bool> Delete(int id);
 }
